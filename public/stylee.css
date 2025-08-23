@@ -1,0 +1,56 @@
+
+/* General Styles */
+body {
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+  background-color: #1a1a1a;
+  color: #fff;
+}
+
+/* Header */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+  background-color: #ff4c81;
+  box-shadow: 0 0 20px #ff4c81;
+}
+
+header h1 {
+  font-family: 'Creepster', cursive;
+  font-size: 2rem;
+}
+
+header button {
+  padding: 10px 20px;
+  border: none;
+  background-color: #1a1a1a;
+  color: #ff4c81;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: 0.3s;
+}
+
+header button:hover {
+  background-color: #ff4c81;
+  color: #1a1a1a;
+}
+
+/* Feed */
+.feed {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+.add{
+  width: 50px;
+  height: 50px;
+  background-image:url('images.png');
+}
+
+
+
+

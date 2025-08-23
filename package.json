@@ -1,0 +1,25 @@
+{
+  "name": "my-website",
+  "version": "1.0.0",
+  "main": "homee.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mannonnym/my-site.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Mannonnym/my-site/issues"
+  },
+  "homepage": "https://github.com/Mannonnym/my-site#readme",
+  "description": "",
+  "dependencies": {
+    "express": "^5.1.0",
+    "multer": "^2.0.2"
+  }
+}
