@@ -19,7 +19,11 @@
   "homepage": "https://github.com/Mannonnym/my-site#readme",
   "description": "",
   "dependencies": {
+    "@tailwindcss/vite": "^4.1.12",
     "express": "^5.1.0",
     "multer": "^2.0.2"
+  },
+  "devDependencies": {
+    "tailwindcss": "^4.1.12"
   }
 }

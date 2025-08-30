@@ -27,6 +27,33 @@ const upload = multer({ storage });
 
 app.use('/uploads', express.static('uploads'));
 app.use(express.static('public'));
+app.get("/search/:username", (req, res) => {
+  const username = req.params.username;
+  const accountPath = path.join(__dirname, "uploads", `${username}.json`);
+
+  fs.access(accountPath, fs.constants.F_OK, (err) => {
+    if (err) {
+      res.json({ found: false });
+    } else {
+      res.json({ found: true, username });
+    }
+  });
+});
+
+app.get("/chat", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "chat.html"));
+
+});
+app.get('/images', (req, res) => {
+  fs.readdir(uploadFolder, (err, files) => {
+    if (err) {
+      return res.status(500).json({ error: 'حدث خطأ عند قراءة الملفات' });
+    }
+    // نرجع array URLs
+    const urls = files.map(file => '/uploads/' + file);
+    res.json(urls);
+  });
+});
 
 
 app.get('/', (req, res) => {
