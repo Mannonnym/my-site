@@ -5,14 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
       <script src="https://cdn.tailwindcss.com"></script>
+      <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
 </head>
 <body>
  
 
-  <div class="flex h-screen">
+  <div class="flex h-screen ">
   <!-- Left sidebar -->
-  <div class="w-1/4 bg-pink-500 text-white p-4">
+  <div class="w-1/4 bg-[#F6527E] shadow-[0_0_25px_rgba(236,72,153,0.8)] text-white p-4 rounded-lg ">
     <h2 class="text-xl font-bold mb-4">Messages</h2>
     <ul id="chatList" class="space-y-2">
   <li class="p-2 rounded-lg">
@@ -32,11 +33,11 @@
   </div>
 
   <!-- Main content -->
-  <div class="flex-1 bg-black p-4 shadow-lg shadow-pink-500/50">
+  <div class="flex-1 bg-neutral-900 p-4 shadow-[0_0_25px_rgba(236,72,153,0.8)]">
      <h1 class="text-2xl font-bold text-white">chat Window</h1>
   </div>
 </div>
-<script>
+  <script>
   async function searchFriend() {
     const input = document.getElementById("searchInput");
     const name = input.value.trim();
@@ -44,23 +45,28 @@
 
     if (!name) return;
 
-    // Call backend to check if file exists
-    const res = await fetch(`/search/${name}`);
-    const data = await res.json();
+    try {
+      const res = await axios.post("http://localhost:5000/ajoute", {
+        username: name, 
+      });
 
-    if (data.found) {
-      // Create new li
-      const newLi = document.createElement("li");
-      newLi.className =
-        "w-20 h-20 p-2 bg-pink-600 rounded-full cursor-pointer hover:bg-gray-700";
-      newLi.innerText = data.username;
+      if (res.data.success) {
+        const newLi = document.createElement("li");
+        newLi.className =
+          "w-20 h-20 flex items-center justify-center text-white font-bold bg-black rounded-full cursor-pointer hover:bg-gray-700 shadow-md";
+        newLi.innerText = res.data.username || name; 
 
-      chatList.appendChild(newLi);
-      input.value = "";
-    } else {
-      alert("No account found with this name");
+        chatList.appendChild(newLi);
+        input.value = "";
+      } else {
+        alert(res.data.message || "❌ No account found with this name");
+      }
+    } catch (err) {
+      console.error("⚠️ Error:", err);
+      alert("⚠️ Server error, check console");
     }
   }
 </script>
+
 </body>
 </html>

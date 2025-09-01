@@ -21,6 +21,7 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.1.12",
     "express": "^5.1.0",
+    "mongodb": "^6.19.0",
     "multer": "^2.0.2"
   },
   "devDependencies": {

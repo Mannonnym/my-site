@@ -2,9 +2,71 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-
+const connectDB = require("./db");
 const app = express();
+app.use('/uploads', express.static('uploads'));
+app.use(express.static('public'));
+
+
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+
+let users; 
+
+async function start() {
+  const db = await connectDB();
+  users = db.collection("users");
+}
+start();
+
+
+// ✅ API لإضافة مستخدم
+app.post("/add", async (req, res) => {
+  const { username, email, password } = req.body;
+  if (!username || !email || !password) {
+    return res.status(400).json({ error: "كل الحقول مطلوبة" });
+  }
+
+  await users.insertOne({ username, email, password });
+  res.json({ message: "✅ User added to MongoDB" });
+});
+
+
+
+app.post("/login", async (req, res) => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res.status(400).json({ error: "كل الحقول مطلوبة" });
+  }
+
+  const user = await users.findOne({ username, password }); 
+
+  if (user) {
+    res.json({ success: true, message: "✅ Login successful" });
+  } else {
+    res.status(401).json({ success: false, message: "❌ Invalid username or password" });
+  }
+});
+
+
+app.post("/ajoute", async (req, res) => {
+  const { username } = req.body;
+
+  if (!username) {
+    return res.status(400).json({ success: false, error: "⚠️ Username required" });
+  }
+
+  const user = await users.findOne({ username });
+
+  if (user) {
+    res.json({ success: true, username: user.username });
+  } else {
+    res.status(404).json({ success: false, message: "❌ User not found" });
+  }
+});
+
 
 const uploadFolder = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadFolder)) {
@@ -21,12 +83,8 @@ const storage = multer.diskStorage({
     cb(null, uniqueName); 
   }
 });
-
 const upload = multer({ storage });
 
-
-app.use('/uploads', express.static('uploads'));
-app.use(express.static('public'));
 app.get("/search/:username", (req, res) => {
   const username = req.params.username;
   const accountPath = path.join(__dirname, "uploads", `${username}.json`);

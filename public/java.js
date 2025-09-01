@@ -43,23 +43,23 @@ else{
       if (currentChar < sentences[currentSentence].length) {
         typewriter.textContent += sentences[currentSentence].charAt(currentChar);
         currentChar++;
-        setTimeout(type, 80); // سرعة الكتابة
+        setTimeout(type, 80);
       } else {
-        setTimeout(erase, 2000); // استنى شوية قبل ما يمسح
+        setTimeout(erase, 2000);
       }
     }
     function erase() {
       if (currentChar > 0) {
         typewriter.textContent = sentences[currentSentence].substring(0, currentChar - 1);
         currentChar--;
-        setTimeout(erase, 30); // سرعة المسح
+        setTimeout(erase, 30); 
       } else {
         currentSentence = (currentSentence + 1) % sentences.length;
         setTimeout(type, 500);
       }
     }
 
-    // بداية التأثير
+   
     type();
 
 
