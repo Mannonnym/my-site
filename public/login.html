@@ -52,6 +52,7 @@ async function login() {
     });
 
     if (res.data.success) {
+      localStorage.setItem("token", res.data.token);
       window.location.href = "homee.html"; 
     }
   } catch (err) {

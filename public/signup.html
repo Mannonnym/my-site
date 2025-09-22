@@ -47,30 +47,34 @@
   </div>
     </div>
     <script>
-    async function signup(){
-    const user = document.getElementById("user").value;
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-    
-    if( !user && !email&& !password){
-        return
-      }
-    try{
-       
-     const res = await axios.post("http://localhost:5000/add", {
+async function signup(){
+  const user = document.getElementById("user").value;
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  
+  if (!user || !email || !password) {
+    return alert("⚠️ All fields are required");
+  }
+
+  try {
+    const res = await axios.post("http://localhost:5000/add", {
       username: user,
       email: email,
       password: password
-      
     });
-    window.location.href = "homee.html"; 
-    }catch(err){
-        console.error("❌ Error:", err);
+
+    if (res.data.success) {
+     
+      window.location.href = "homee.html";
+    } else {
+    
+      alert(res.data.message || "❌ User already exists");
     }
-
-   }
-
-   
+  } catch (err) {
+    console.error("❌ Error:", err);
+    alert("⚠️ Server error, check console");
+  }
+}
    
 
 

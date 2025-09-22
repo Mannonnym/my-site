@@ -10,23 +10,37 @@
 <body class="bg-neutral-950">
 
   <div class="flex h-screen">
-    <div class="w-1/4 bg-[#F6527E] shadow-[0_0_40px_rgba(236,72,153,1),0_0_80px_rgba(236,72,153,0.6)] text-white p-6 rounded-r-2xl flex flex-col">
+    <!-- Sidebar -->
+    <div class="w-1/4 bg-[#F6527E] shadow-[0_0_40px_rgba(236,72,153,1),0_0_80px_rgba(236,72,153,0.6)] text-white p-6 rounded-r-2xl flex flex-col overflow-y-auto">
       <h2 class="text-2xl font-bold mb-6 tracking-wide drop-shadow-[0_0_10px_rgba(0,0,0,0.7)]">Messages</h2>
-      <ul id="chatList" class="space-y-4 flex-1 overflow-y-auto">
-        <li class="p-2">
-          <input id="searchInput" 
-                 type="text" 
-                 placeholder="🔍 Search friend..."
-                 class="w-full p-3 rounded-xl text-black focus:outline-none focus:ring-2 focus:ring-pink-400 shadow-[inset_0_0_15px_rgba(0,0,0,0.8)]" />
-          <button onclick="searchFriend()" 
-                  class="bg-black text-pink-400 font-semibold hover:bg-neutral-900 mt-3 w-full py-2 rounded-xl shadow-[0_0_20px_rgba(236,72,153,0.7)] hover:shadow-[0_0_35px_rgba(236,72,153,1)] transition-all">
-            ➕ Add Friend
-          </button>
-        </li>
-      </ul>
+      
+      <!-- Search -->
+      <div class="space-y-3">
+        <input id="searchInput" 
+               type="text" 
+               placeholder="🔍 Search friend..."
+               class="w-full p-3 rounded-xl text-black focus:outline-none focus:ring-2 focus:ring-pink-400 shadow-[inset_0_0_15px_rgba(0,0,0,0.8)]" />
+        <button onclick="searchFriend()" 
+                class="bg-black text-pink-400 font-semibold hover:bg-neutral-900 w-full py-2 rounded-xl shadow-[0_0_20px_rgba(236,72,153,0.7)] hover:shadow-[0_0_35px_rgba(236,72,153,1)] transition-all">
+          ➕ Add Friend
+        </button>
+      </div>
+
+      <!-- ✅ Friend Requests Sections -->
+      <h3 class="text-lg font-bold mt-6">📤 Sent Requests</h3>
+      <div id="sentList" class="space-y-3 mt-2"></div>
+
+      <h3 class="text-lg font-bold mt-6">📥 Received Requests</h3>
+      <div id="receivedList" class="space-y-3 mt-2"></div>
+       
+      <!-- ✅ All Friends List -->
+      <h3 class="text-lg font-bold mt-6">👥 Friends</h3>
+      <div id="chatList" class="mt-2 flex-1 overflow-y-auto space-y-3 pr-1">
+        <!-- Items will be appended here -->
+      </div>
     </div>
 
-    
+    <!-- Chat Window -->
     <div class="flex-1 bg-neutral-900 p-6 shadow-[0_0_40px_rgba(236,72,153,1),0_0_80px_rgba(236,72,153,0.6)] rounded-l-2xl flex flex-col">
       <h1 class="text-3xl font-bold text-[#F6527E] mb-4 drop-shadow-[0_0_10px_rgba(236,72,153,0.8)]">💬 Chat Window</h1>
       <div class="flex-1 bg-neutral-800 rounded-xl shadow-[inset_0_0_30px_rgba(236,72,153,0.3)] p-4 text-gray-200">
@@ -34,37 +48,170 @@
       </div>
     </div>
   </div>
-
-  <script>
-    async function searchFriend() {
-      const input = document.getElementById("searchInput");
-      const name = input.value.trim();
-      const chatList = document.getElementById("chatList");
-
-      if (!name) return;
-
-      try {
-        const res = await axios.post("http://localhost:5000/ajoute", {
-          username: name, 
-        });
-
-        if (res.data.success) {
-          const newLi = document.createElement("li");
-          newLi.className =
-            "w-20 h-20 flex items-center justify-center text-white font-bold bg-black rounded-full cursor-pointer hover:bg-[#F6527E] hover:text-white shadow-[0_0_20px_rgba(236,72,153,0.7)] hover:shadow-[0_0_35px_rgba(236,72,153,1)] transition-all";
-          newLi.innerText = res.data.username || name; 
-
-          chatList.appendChild(newLi);
-          input.value = "";
-        } else {
-          alert(res.data.message || "❌ No account found with this name");
-        }
-      } catch (err) {
-        console.error("⚠️ Error:", err);
-        alert("⚠️ Server error, check console");
-      }
-    }
-  </script>
 </body>
 </html>
+
+    <script>
+  
+  async function searchFriend() {
+    const input = document.getElementById("searchInput");
+    const name = input.value.trim();
+    if (!name) return;
+
+    try {
+      const token = localStorage.getItem("token");
+
+      
+      const res = await axios.post("http://localhost:5000/ajoute",
+        { username: name },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (res.data.success) {
+        alert("✅ طلب صداقة أُرسل");
+        loadFriends(); 
+        input.value = "";
+      } else {
+        alert(res.data.message || "❌ No account found with this name");
+      }
+    } catch (err) {
+      console.error("⚠️ Error:", err);
+      alert("⚠️ Server error, check console");
+    }
+  }
+
+  
+  function createFriendItem(name, type, requestId) {
+
+    const item = document.createElement("div");
+    item.className = "flex items-center justify-between bg-neutral-800 p-3 rounded-xl shadow hover:bg-neutral-700 transition-all";
+
+  
+    const avatar = document.createElement("div");
+    avatar.className = "w-10 h-10 rounded-full bg-[#F6527E] flex items-center justify-center text-white font-bold shadow";
+    avatar.innerText = name[0].toUpperCase();
+
+   
+    const nameSpan = document.createElement("span");
+    nameSpan.className = "ml-3 flex-1 font-semibold text-white";
+    nameSpan.innerText = name;
+
+   
+    const actions = document.createElement("div");
+
+    if (type === "sent") {
+     
+      const cancelBtn = document.createElement("button");
+      cancelBtn.className = "px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600";
+      cancelBtn.innerText = "Cancel";
+      cancelBtn.onclick = () => cancelRequest(requestId);
+      actions.appendChild(cancelBtn);
+    } else if (type === "received") {
+      
+      const acceptBtn = document.createElement("button");
+      acceptBtn.className = "px-3 py-1 bg-green-500 text-white rounded-lg hover:bg-green-600 mr-2";
+      acceptBtn.innerText = "Accept";
+      acceptBtn.onclick = () => respondRequest(requestId, "accepted");
+
+      
+      const refuseBtn = document.createElement("button");
+      refuseBtn.className = "px-3 py-1 bg-gray-500 text-white rounded-lg hover:bg-gray-600";
+      refuseBtn.innerText = "Refuse";
+      refuseBtn.onclick = () => respondRequest(requestId, "refused");
+
+      actions.appendChild(acceptBtn);
+      actions.appendChild(refuseBtn);
+    }
+
+   
+    item.appendChild(avatar);
+    item.appendChild(nameSpan);
+    item.appendChild(actions);
+
+    return item;
+  }
+
+ 
+  async function loadFriends() {
+  const sentList = document.getElementById("sentList");
+  const receivedList = document.getElementById("receivedList");
+  const chatList = document.getElementById("chatList");
+
+  sentList.innerHTML = "";
+  receivedList.innerHTML = "";
+  chatList.innerHTML = "";
+
+  try {
+    const token = localStorage.getItem("token");
+
+  
+    const sentRes = await axios.get("http://localhost:5000/friends/sent", {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+   
+    const receivedRes = await axios.get("http://localhost:5000/friends/received", {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+   
+    const friendsRes = await axios.get("http://localhost:5000/friends", {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+   
+    if (sentRes.data.success) {
+      sentRes.data.sent.forEach(req => {
+        sentList.appendChild(createFriendItem(req.friendId, "sent", req._id));
+      });
+    }
+
+   
+    if (receivedRes.data.success) {
+      receivedRes.data.received.forEach(req => {
+        receivedList.appendChild(createFriendItem(req.userId, "received", req._id));
+      });
+    }
+
+   
+    if (friendsRes.data.success) {
+      const currentUser = localStorage.getItem("username"); 
+      friendsRes.data.friends.forEach(req => {
+       
+        const friendName = req.userId === currentUser ? req.friendId : req.userId;
+        chatList.appendChild(createFriendItem(friendName, "friend", req._id));
+      });
+    }
+  } catch (err) {
+    console.error("⚠️ Error loading friends:", err);
+  }
+}
+
+
+
+  async function cancelRequest(requestId) {
+    const token = localStorage.getItem("token");
+    await axios.delete(`http://localhost:5000/friends/${requestId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    loadFriends();
+  }
+
+  
+  async function respondRequest(requestId, action) {
+    const token = localStorage.getItem("token");
+    await axios.put(`http://localhost:5000/friends/${requestId}`, 
+      { action }, 
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    loadFriends();
+  }
+
+ 
+  window.onload = loadFriends;
+</script>
+
+</body>
+</html>
+
 
